@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      div > input {
+        width: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sayısal Loto Oyunu</h1>
+
+    <text>Aşağıdaki inputlara tahminlerini giriniz;</text> <br /><br />
+    <div id="guessInputs">
+      <input class="guess" type="number" />
+      <input class="guess" type="number" />
+      <input class="guess" type="number" />
+      <input class="guess" type="number" />
+      <input class="guess" type="number" />
+      <input class="guess" type="number" />
+      <button id="guessButton" onclick="guess()">Tahmin Gir</button>
+      <p id="couponStatus"></p>
+    </div>
+    <br />
+    <text id="status"></text>
+    <hr />
+    <button id="lottoButton" onclick="lotto()">Kurayı Çek</button><br /><br />
+    <text>Loto Sayıları</text><br /><br />
+    <div>
+      <input class="result" type="number" disabled />
+      <input class="result" type="number" disabled />
+      <input class="result" type="number" disabled />
+      <input class="result" type="number" disabled />
+      <input class="result" type="number" disabled />
+      <input class="result" type="number" disabled />
+    </div>
+    <br />
+    <text id="resultText"></text>
+
+    <script>
+      document.getElementById("lottoButton").disabled = true;
+      let guessArray = [],
+        resultArray = [];
+      let guesses = document.querySelectorAll(".guess");
+      let results = document.querySelectorAll(".result");
+
+      guesses.forEach((guess, i) =>
+        guess.addEventListener("change", (e) => {
+          if (control(guess.value)) {
+            alert("Aynı Sayıyı Tekrar Edemezsiniz.");
+            e.target.value = "";
+            e.target.focus();
+            return;
+          } else if (guess.value < 1 || guess.value > 49) {
+            alert("1-49 Arasında Bir Sayi Tahmin Etmeniz Gerekiyor");
+            guess.value = "";
+            e.target.focus();
+            return;
+          } else {
+            guessArray[i] = guess.value;
+          }
+        })
+      );
+
+      function guess() {
+        if (guessArray.includes(undefined) || guessArray.length < 6) {
+          alert("Boş alan bulunmaktadır. Lütfen kontrol ediniz.");
+        }
+        document.getElementById("guessButton").disabled = true;
+        document.getElementById("lottoButton").disabled = false;
+        document.getElementById("couponStatus").innerText = "Tahminler Girildi";
+        let sortArray = guessArray.sort((a, b) => a - b);
+        guesses.forEach((guess, i) => (guess.value = sortArray[i]));
+      }
+
+      function duplicateControl() {
+        let controlledArray = [];
+        resultArray.forEach((item, i) => {
+          if (resultArray.indexOf(item) !== i) {
+            controlledArray.push(item);
+          }
+        });
+        if (controlledArray.length > 0) {
+          lotto();
+        }
+      }
+
+      function lotto() {
+        for (let i = 0; i < 6; i++) {
+          resultArray[i] = Math.floor(Math.random() * 49 + 1);
+        }
+        duplicateControl();
+
+        let sortResult = resultArray.sort((a, b) => a - b);
+        results.forEach((result, i) => (result.value = resultArray[i]));
+
+        let correctNumbers = 0;
+        let knownNumbers = [];
+        for (let i = 0; i < 6; i++) {
+          if (sortResult[i] == guessArray[i]) {
+            correctNumbers++;
+            knownNumbers.push(guessArray[i]);
+          }
+        }
+        document.getElementById(
+          "resultText"
+        ).innerText = `Bilinen sayılar: ${knownNumbers}\n${correctNumbers} adet sayı bildiniz.`;
+      }
+
+      function control(number) {
+        return guessArray.some((guess) => guess == number);
+      }
+    </script>
+  </body>
+</html>
